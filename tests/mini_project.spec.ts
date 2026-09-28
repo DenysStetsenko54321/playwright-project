@@ -40,7 +40,7 @@ const houseNumber = '19'
     await page.getByLabel('House number').fill(houseNumber)
 
     // street, city and state update the value all the time so I don't see point to fill something here that takes time and is not used
-    //await page.getByLabel('Street').fill('test')
+    // await page.getByLabel('Street').fill('test')
     // await page.getByLabel('City').fill('test')
     // await page.getByLabel('State').fill('test')
 
@@ -54,8 +54,8 @@ const houseNumber = '19'
     await expect(page.locator('.text-success')).toHaveCount(4)
 
     // how strogn password is - is not loaded so test fails always. I avoid this check
-    //await page.waitForLoadState('load')
-    //await expect(page.locator('.strength-labels span .active')).toHaveCount(1)
+    // await page.waitForLoadState('load')
+    // await expect(page.locator('.strength-labels span .active')).toHaveCount(1)
 
     await page.getByRole('button', {name: 'Register'}).click()
 
@@ -97,13 +97,18 @@ const houseNumber = '19'
     // const previousPageButton = page.locator('[data-test="pagination-prev"]')
     // await expect(previousPageButton).toBeDisabled()
 
-    const productToBuy = page.locator('[data-test="product-name"]').filter({hasText: 'Adjustable Wrench'})
+    const products = page.locator('[data-test="product-name"]')
+    const firstProduct = products.first()
+    const productToBuy = products.filter({hasText: 'Adjustable Wrench'})
 
     let guard = 0
 
-    while (await productToBuy.isHidden({timeout: 1000}) && guard < 4){
+    await expect(firstProduct).toBeVisible()
+
+    while (await productToBuy.isHidden() && guard < 4){
+      const previousName = await firstProduct.innerText()
       await nextPageButton.click()
-      await page.waitForTimeout(1000)
+      await expect(firstProduct).not.toHaveText(previousName)
       guard++
     }
 
@@ -127,6 +132,7 @@ const houseNumber = '19'
     await expect(page.getByRole('alert', { name: 'Product added to shopping' })).toBeVisible()
     await expect(cart).toBeVisible()
     await expect(cart).toHaveText('1')
+    await expect(page.getByRole('alert', { name: 'Product added to shopping' })).toBeHidden({timeout: 10000}) /*this one takes more than default 5sec*/
     await cart.click()
 
     const cartProduct = (await page.locator('[data-test="product-title"]').innerText()).trim()
