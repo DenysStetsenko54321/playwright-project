@@ -36,7 +36,7 @@ test.describe('e2e new user creation', { tag: '@e2e', annotation: { type: 'warni
         await page.getByLabel('Email address').fill(user.email)
         await page.getByLabel('Password').pressSequentially(user.password, { delay: 100 })
 
-        await page.locator('.btn-outline-secondary').click()
+        await page.locator('.btn-outline-secondary').click() // need this step to make next step pass
         await expect(page.locator('.text-success')).toHaveCount(4)
 
         /* how strong password is - is not loaded so test fails always. I avoid this check
@@ -78,7 +78,7 @@ test.describe('e2e new user creation', { tag: '@e2e', annotation: { type: 'warni
         await page.context().storageState({path: 'playwright/.auth/logged_user.json'})
     })
 
-    test.describe('e2e checkout with logged in user', {annotation: { type: 'issue', description: 'newly created users are deleted from DB after some time, so running sign in separately might fail because session becomes terminated' }},() => {
+    test.describe('e2e checkout with logged in user', {tag: '@slow', annotation: { type: 'issue', description: 'newly created users are deleted from DB after some time, so running sign in separately might fail because session becomes terminated' }},() => {
         
         test.use({storageState: 'playwright/.auth/logged_user.json'})
         
@@ -161,7 +161,7 @@ test.describe('e2e new user creation', { tag: '@e2e', annotation: { type: 'warni
 
             await expect(successMessage).toBeHidden()
 
-            await page.getByRole('button', {name: 'Confirm'}).click()
+            await page.getByRole('button', {name: 'Check payment'}).click()
 
             await expect(successMessage).toBeVisible()
 
