@@ -1,48 +1,72 @@
-// import { test, expect } from '@playwright/test';
-// import { writeFileSync } from 'fs'
-// import { user } from '../test-data';
+import { test, expect } from '@playwright/test';
+import { user } from '../test-data';
 
-
-//   test('successful register', async ({ page }) => {
-
-//     await page.goto('');
-
-//     await expect(page.getByTitle('Practice Software Testing - Toolshop')).toBeVisible()
-//     await expect(page.locator('app-header .navbar-brand')).toHaveScreenshot('toolshop-logo.png', {maxDiffPixels: 1})
-
-//     await page.getByRole('link', {name: 'Sign in'}).click()
-
-//     await page.getByLabel('Register your account').click()
   
-//     await expect(page.getByRole('heading', { name: 'Customer registration', })).toBeVisible()
+test.describe('registration scenarios', () => {
 
-//     await page.getByLabel('First name').fill(user.name)
-//     await page.getByLabel('Last name').fill(user.secondName)
-//     await page.getByLabel('Date of Birth').fill('1999-12-31')
-//     await page.getByLabel('Country').selectOption({ label: 'Antarctica' })
-//     await page.getByLabel('Postal code').fill(user.postalCode)
-//     await page.getByLabel('House number').fill(user.houseNumber)
+  test.beforeEach(async({ page }) => {
+    await page.goto('');
 
-//     // street, city and state update the value all the time so I don't see point to fill something here that takes time and is not used
-//     // await page.getByLabel('Street').fill('test')
-//     // await page.getByLabel('City').fill('test')
-//     // await page.getByLabel('State').fill('test')
+    await page.getByRole('link', {name: 'Sign in'}).click()
 
-//     await page.getByLabel('Phone').fill('1234567890')
+    await page.getByLabel('Register your account').click()
+  })
 
-//     await page.getByLabel('Email address').fill(user.email)
-//     await page.getByLabel('Password').pressSequentially(user.password, { delay: 100 })
+  test('street, city, state autofilling', { tag: '@other' }, async({ page }) => {
 
-//     await page.locator('.btn-outline-secondary').click()
-//     await expect(page.locator('.text-success')).toHaveCount(4)
+    const responsePromise = page.waitForResponse(resp =>
+      resp.url().includes('/postcode') && resp.status() === 200);
 
-//     // how strogn password is - is not loaded so test fails always. I avoid this check
-//     // await page.waitForLoadState('load')
-//     // await expect(page.locator('.strength-labels span .active')).toHaveCount(1)
+    await page.getByLabel('Country').selectOption({ label: 'Antarctica' })
+    await page.getByLabel('Postal code').fill(user.postalCode)
+    await page.getByLabel('House number').fill(user.houseNumber)
+    await page.getByLabel('Phone').fill('1234567890')
 
-//     await page.getByRole('button', {name: 'Register'}).click()
+    const response = await responsePromise;
+    const body = await response.json()
+    
+    expect(body.street).not.toBe('')
+    expect(body.city).not.toBe('')
+    expect(body.state).not.toBe('')
+  })
 
-//     await expect(page).toHaveURL('/auth/login')
+  test('sign up with no email', { tag: '@negative' }, async ({ page }) => {
 
-//     writeFileSync('test-user.json', JSON.stringify(user, null, 2));
-//   })
+    await page.getByLabel('First name').fill(user.name)
+    await page.getByLabel('Last name').fill(user.secondName)
+    await page.getByLabel('Date of Birth').fill('1999-12-31')
+    await page.getByLabel('Country').selectOption({ label: 'Antarctica' })
+    await page.getByLabel('Postal code').fill(user.postalCode)
+    await page.getByLabel('House number').fill(user.houseNumber)
+    await page.getByLabel('Phone').fill('1234567890')
+    await page.getByLabel('Email address').fill(user.email)
+
+    const passwordError = page.getByRole('alert').filter({hasText: 'Password is required'});
+
+    await expect(passwordError).toBeHidden()
+
+    await page.getByRole('button', {name: 'Register'}).click()
+
+    await expect(passwordError).toBeVisible()
+  })
+
+  test('sign up with occupied email', { tag: '@negative' }, async({ page }) => {
+    await page.getByLabel('First name').fill(user.name)
+    await page.getByLabel('Last name').fill(user.secondName)
+    await page.getByLabel('Date of Birth').fill('1999-12-31')
+    await page.getByLabel('Country').selectOption({ label: 'Antarctica' })
+    await page.getByLabel('Postal code').fill(user.postalCode)
+    await page.getByLabel('House number').fill(user.houseNumber)
+    await page.getByLabel('Phone').fill('1234567890')
+    await page.getByLabel('Email address').fill('customer@practicesoftwaretesting.com')
+    await page.getByLabel('Password').pressSequentially(user.password, { delay: 100 })
+
+    const emailError = page.locator('[data-test="register-error"]').filter({hasText: 'A customer with this email address already exists.'});
+
+    await expect(emailError).toBeHidden()
+
+    await page.getByRole('button', {name: 'Register'}).click()
+
+    await expect(emailError).toBeVisible()
+  })
+})
