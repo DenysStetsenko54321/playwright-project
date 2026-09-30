@@ -11,7 +11,7 @@ test.describe('sign in scenarios', { tag: '@other' }, () => {
         await page.getByLabel('Password *').fill(user.password)
     })
 
-    test('successful sign in with uppercase email', {tag: '@other'}, async({ page }) => {
+    test('successful sign in with uppercase email', {tag: '@other', annotation: {type: 'tip', description: 'for Windows/Linux users - to generate win32/linux snapshots, run npx playwright test --project=chromium --workers=1 --update-snapshots'}}, async({ page }) => {
         await page.getByLabel('Email address *').fill(permanentUser.email.toUpperCase())
         await page.getByLabel('Password *').fill(permanentUser.password)
 

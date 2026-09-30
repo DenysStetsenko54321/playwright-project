@@ -6,7 +6,7 @@ test.describe('e2e new user creation', { tag: '@e2e', annotation: { type: 'warni
     
     test.describe.configure({ mode: 'serial' })
 
-    test('successful sign up', async({ page }) => {
+    test('successful sign up', {annotation: {type: 'tip', description: 'for Windows/Linux users - to generate win32/linux snapshots, run npx playwright test --project=chromium --workers=1 --update-snapshots'}}, async({ page }) => {
         
         await page.goto('')
 
@@ -82,7 +82,7 @@ test.describe('e2e new user creation', { tag: '@e2e', annotation: { type: 'warni
         
         test.use({storageState: 'playwright/.auth/logged_user.json'})
         
-        test('successful product checkout', async({ page }) => {
+        test('successful product checkout', {annotation: {type: 'tip', description: 'for Windows/Linux users - to generate win32/linux snapshots, run npx playwright test --project=chromium --workers=1 --update-snapshots'}}, async({ page }) => {
             
             const user = JSON.parse(readFileSync('test-user.json', 'utf8'))
 

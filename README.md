@@ -80,12 +80,18 @@ This file is excluded from Git.
 
 ## Screenshot checks
 
-The suite compares the application logo against baseline screenshots
+The suite compares the application logo and banner against baseline screenshots
 stored alongside the tests.
 
 Screenshot results can vary across operating systems and browser
 versions. A contributor using another environment may need baselines
 for that environment.
+
+Run command below to create screenshots for your OS
+
+```bash 
+npx playwright test --update-snapshots 
+```
 
 ## Current limitations
 
