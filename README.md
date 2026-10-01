@@ -1,3 +1,8 @@
+
+# README file is not up to date
+
+
+
 # Playwright + TypeScript Mini Project
 
 Application under test: https://practicesoftwaretesting.com
